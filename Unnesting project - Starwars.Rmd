@@ -1,0 +1,87 @@
+---
+title: 'Unnesting project: Starwars'
+author: "Jonathan Mulamba"
+date: "2024-06-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Why unnest data?
+
+Unnesting is a crucial step in data preparation , ensuring that the data is in a usable format for analysis and visualization.
+In this project , I unnest the starwars dataset from the tidyverse library and thereafter perform data analysis and create visualization.
+
+
+**Loading the tidyverse & dplyr package and setting the theme for the visualizations to follow**
+```{r library}
+library(tidyverse)
+library(dplyr)
+theme_set(theme_grey())
+```
+
+**Utilizing the glimpse function provided by the 'dplyr' package to get a quick overview of the structure and content of the dataframe.**
+```{r glimpse}
+glimpse(starwars)
+```
+The glimpse function shows in the starwars dataset that the following columns are list datatypes/data structure: films, vehicles & starships.
+
+Creating a new data frame to focus on the columns that we require for unnesting purposes.
+```{r}
+starwars_sm <- starwars %>% 
+  select(name, 
+         films,
+         vehicles,
+         starships)
+```
+
+#### Unnesting the films column
+```{r}
+sw_films <- starwars_sm %>% 
+  unnest(films)
+
+view(sw_films)
+head(sw_films)
+```
+
+### Data analysis
+Count the number of times each character appeared in a movie.
+```{r , echo= FALSE}
+sw_films %>% 
+  count(name) %>% 
+  arrange(-n)
+```
+
+### Data visulization
+Create a bar chart to show the characters and the number of movies they appeared in
+```{r pressure, echo=FALSE}
+sw_films %>% 
+  count(name) %>% 
+  filter(n >= 4) %>% 
+  mutate(name = fct_reorder(name, n)) %>% 
+  ggplot(aes(y = name,
+             x = n )) +
+  geom_col()
+```
+
+
+
+#### Unnesting the starship column
+```{r}
+sw_ships <- starwars_sm %>% 
+  unnest(starships, keep_empty =  TRUE)
+head(sw_ships)
+```
+
+
+### Unnesting multiple columns
+```{r}
+sw_long <- starwars_sm %>% 
+  unnest(starships) %>% 
+  unnest(vehicles)
+
+head(sw_long)
+```
+
